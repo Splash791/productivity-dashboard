@@ -1,22 +1,32 @@
-body {
-    font-family: system-ui, sans-serif;
-    background-color: #f8fafc;
+:root {
+    --color-background: #135d8f; 
+    --color-card-background: #ffffff;
+    --color-text-dark: #000000;
+    --color-text-medium: #666666;
+    --color-text-light: #999999;
+    --color-primary-blue: #007bff; 
+    --color-primary-blue-dark: #0056b3;
+    --color-success-green: #5cb85c;
+    --color-warning-orange: #f0ad4e;
+    --color-danger-red: #d9534f;
+    --border-radius-base: 100px;
+    --box-shadow-base: 0 4px 6px rgb(255, 255, 255);
+  }
+  
+  html, body {
+    height: 100%; 
     margin: 0;
-    color: #222;
+    padding: 0;
   }
   
-  header {
-    text-align: center;
-    padding: 2rem 1rem;
-    background: linear-gradient(to right, #007bff, #00bfff);
-    color: white;
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-dark);
+    margin-top: 0;
+    margin-bottom: 10px;
   }
   
-  h1 {
-    margin: 0.5rem 0;
+  p.subtitle {
+    color: var(--color-text-medium);
+    font-size: 0.9em;
+    margin-bottom: 20px;
   }
-  
-  p {
-    color: #444;
-  }
-  
