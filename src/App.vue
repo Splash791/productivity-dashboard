@@ -1,27 +1,33 @@
 <script setup>
-import Dashboard from "./views/Dashboard.vue";
+import Dashboard from './views/Dashboard.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
-    <!-- Navbar -->
-    <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-      <h1 class="text-2xl font-semibold text-flow-blue">FlowState</h1>
-      <span class="text-gray-500 text-sm">Stay focused. Stay consistent.</span>
-    </header>
+  <header>
+    <h1>FlowState</h1>
+    <p>Stay focused. Stay consistent.</p>
+  </header>
 
-    <!-- Main content -->
-    <main class="flex-grow container mx-auto p-6">
-      <Dashboard />
-    </main>
+  <main>
+    <Dashboard />
+  </main>
 
-    <!-- Footer -->
-    <footer class="text-center py-4 text-gray-500 text-sm">
-      © 2025 FlowState
-    </footer>
-  </div>
+  <footer>
+    <p>© 2025 FlowState</p>
+  </footer>
 </template>
 
 <style scoped>
-/* Optional custom styling */
+header {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #888;
+}
 </style>
