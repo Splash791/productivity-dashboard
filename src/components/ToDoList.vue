@@ -6,9 +6,9 @@
     <div class="add-task-bar">
       <input v-model="newTaskText" placeholder="Add a new task..." />
       <select v-model="newTaskPriority" class="priority-select">
+        <option value="Low">Low</option>
         <option value="Medium">Medium</option>
         <option value="High">High</option>
-        <option value="Low">Low</option>
       </select>
       <button @click="addTaskHandler" class="add-button">+</button>
     </div>
@@ -193,7 +193,8 @@ h2 {
   font-weight: 500;
   margin-left: 15px;
 }
-.High { background-color: var(--color-danger-red); }
-.Medium { background-color: var(--color-warning-orange); }
 .Low { background-color: var(--color-success-green); }
+.Medium { background-color: var(--color-warning-orange); }
+.High { background-color: var(--color-danger-red); }
+
 </style>
