@@ -9,7 +9,7 @@ export const useTaskStore = defineStore('tasks', {
       { id: 3, text: 'drink water', priority: 'Medium', completed: false },
       { id: 4, text: 'Review project proposal', priority: 'High', completed: false },
       { id: 5, text: 'Schedule team meeting', priority: 'Medium', completed: false },
-      { id: 6, text: 'Water the plants', priority: 'Low', completed: true }, // The completed one
+      { id: 6, text: 'Water the plants', priority: 'Low', completed: true },
     ],
   }),
   actions: {

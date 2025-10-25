@@ -15,9 +15,9 @@ import { useCalendarStore } from '@/stores/calendar';
 const calendarStore = useCalendarStore();
 
 // Initialize the Google Auth client when the component is mounted
-onMounted(() => {
-    // This ensures the Google Auth client is initialized as soon as the button appears
-    calendarStore.initGoogleAuth();
+onMounted(async () => {
+    // 🛑 Call the async init function to ensure the Google script is ready
+    await calendarStore.initGoogleAuth(); 
 });
 
 const handleClick = () => {

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; //add this in later
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID; 
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 
 export const useCalendarStore = defineStore('calendar', {
@@ -11,15 +11,25 @@ export const useCalendarStore = defineStore('calendar', {
     loading: false,
     error: null,
     isAuthenticated: false,
+    tokenClient: null,
   }),
   actions: {
-    initGoogleAuth() {
-        if (!window.google) {
-            console.error('Google Identity Services script not loaded.');
-            return;
-        }
+    async waitForGoogleScript() {
+        return new Promise(resolve => {
+            if (window.google) {
+                resolve();
+            } else {
+                window.onload = resolve;
+            }
+        });
+    },
 
-        this.tokenClient = google.accounts.oauth2.initTokenClient({
+    async initGoogleAuth() {
+        await this.waitForGoogleScript(); 
+        if (!window.google) return; 
+        if (this.tokenClient) return;
+
+        this.tokenClient = window.google.accounts.oauth2.initTokenClient({
             client_id: GOOGLE_CLIENT_ID,
             scope: CALENDAR_SCOPE,
             callback: (tokenResponse) => {
@@ -28,7 +38,6 @@ export const useCalendarStore = defineStore('calendar', {
                     this.isAuthenticated = true;
                     this.fetchGoogleEventsForCurrentMonth();
                 } else {
-                    console.error('Failed to get access token:', tokenResponse);
                     this.isAuthenticated = false;
                 }
             },
@@ -39,7 +48,8 @@ export const useCalendarStore = defineStore('calendar', {
         if (this.tokenClient) {
             this.tokenClient.requestAccessToken();
         } else {
-            console.error('Google Auth client not initialized.');
+            console.error('Google Auth client not initialized. Retrying init...');
+            this.initGoogleAuth();
         }
     },
 
@@ -47,19 +57,8 @@ export const useCalendarStore = defineStore('calendar', {
         this.accessToken = token;
     },
 
-    async fetchGoogleEventsForCurrentMonth() {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
-        await this._fetchEvents(startOfMonth, endOfMonth);
-    },
-
-    async _fetchEvents(timeMin, timeMax) {
-        if (!this.accessToken) {
-            console.warn('Authentication required to fetch events.');
-            return;
-        }
+    async fetchGoogleEventsForCurrentMonth(startOfMonth, endOfMonth) {
+        if (!this.isAuthenticated) return;
         
         this.loading = true;
         this.error = null;
@@ -69,12 +68,10 @@ export const useCalendarStore = defineStore('calendar', {
 
         try {
             const response = await axios.get(URL, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`
-                },
+                headers: { 'Authorization': `Bearer ${this.accessToken}` },
                 params: {
-                    timeMin: timeMin.toISOString(), 
-                    timeMax: timeMax.toISOString(), 
+                    timeMin: startOfMonth.toISOString(), 
+                    timeMax: endOfMonth.toISOString(), 
                     singleEvents: true,
                     orderBy: 'startTime'
                 }
@@ -83,11 +80,7 @@ export const useCalendarStore = defineStore('calendar', {
             this.events = response.data.items.map(item => {
                 const date = new Date(item.start.dateTime || item.start.date);
                 const summary = item.summary || 'No Title';
-                
-                let type = 'Low';
-                if (summary.toLowerCase().includes('deadline') || summary.toLowerCase().includes('urgent')) {
-                    type = 'High';
-                }
+                let type = (summary.toLowerCase().includes('deadline') || summary.toLowerCase().includes('urgent')) ? 'High' : 'Low';
 
                 return {
                     day: date.getDate(),
@@ -100,8 +93,11 @@ export const useCalendarStore = defineStore('calendar', {
             
         } catch (error) {
             console.error('Error fetching Google Calendar events:', error);
-            this.error = 'Failed to load events. Token might be expired or permissions denied.';
-            this.isAuthenticated = false;
+            this.error = 'Failed to load events.';
+            if (error.response && error.response.status === 401) {
+                this.isAuthenticated = false;
+                this.accessToken = null;
+            }
         } finally {
             this.loading = false;
         }
